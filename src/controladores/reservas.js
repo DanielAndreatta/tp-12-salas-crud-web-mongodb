@@ -331,6 +331,55 @@ function crearControladorReservas(servicioReservas) {
     res.json(reserva);
   }
 
+  async function mostrarEliminacion(req, res) {
+    const reserva = await servicioReservas.obtenerPorId(req.params.id);
+    if (!reserva) {
+      return res.status(404).render("no-encontrado", {
+        titulo: "Recurso no encontrado",
+        mensaje: "No existe la reserva solicitada. No se guardaron cambios.",
+      });
+    }
+
+    res.render("reservas/eliminar", {
+      titulo: "Confirmar eliminación",
+      error: null,
+      reserva,
+    });
+  }
+
+  async function eliminarWeb(req, res) {
+    const reserva = await servicioReservas.obtenerPorId(req.params.id);
+    if (!reserva) {
+      return res.status(404).render("no-encontrado", {
+        titulo: "Recurso no encontrado",
+        mensaje: "No existe la reserva solicitada. No se guardaron cambios.",
+      });
+    }
+
+    const datos = req.body ?? {};
+
+    // Validación estricta: SOLO debe llegar "confirmar=si"
+    if (Object.keys(datos).length !== 1 || datos.confirmar !== "si") {
+      return res.status(400).render("reservas/eliminar", {
+        titulo: "Confirmar eliminación",
+        error: "La eliminación requiere confirmar desde este formulario.",
+        reserva,
+      });
+    }
+
+    // Ejecutamos el borrado físico en la BD
+    const eliminado = await servicioReservas.eliminar(reserva.id);
+    if (!eliminado) {
+      return res.status(404).render("no-encontrado", {
+        titulo: "Recurso no encontrado",
+        mensaje: "No existe la reserva solicitada. No se guardaron cambios.",
+      });
+    }
+
+    // Redirigimos al catálogo general (el detalle ya no existe)
+    res.redirect(303, "/reservas");
+  }
+
   return {
     estado,
     listar,
@@ -347,6 +396,8 @@ function crearControladorReservas(servicioReservas) {
     eliminarApi,
     reemplazarApi,
     actualizarApi,
+    mostrarEliminacion,
+    eliminarWeb,
   };
 }
 

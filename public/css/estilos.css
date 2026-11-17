@@ -119,3 +119,8 @@ button:focus-visible {
     margin-bottom: 20px;
     align-items: center;
 }
+
+.boton-rojo {
+    background-color: #d9534f;
+    color: white;
+}

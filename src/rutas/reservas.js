@@ -16,6 +16,8 @@ function crearRouterReservas(controladorReservas) {
   router.post("/:id/editar", controladorReservas.guardarEdicion);
   router.get("/:id/estado", controladorReservas.mostrarCambioEstado);
   router.post("/:id/estado", controladorReservas.guardarCambioEstado);
+  router.get("/:id/eliminar", controladorReservas.mostrarEliminacion);
+  router.post("/:id/eliminar", controladorReservas.eliminarWeb);
   router.get("/:id", controladorReservas.mostrarDetalle);
 
   router.post("/", validarReserva, controladorReservas.crear);
