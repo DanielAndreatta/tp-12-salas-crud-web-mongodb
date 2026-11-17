@@ -112,3 +112,10 @@ button:focus-visible {
     font-size: 0.9rem;
     color: #666;
 }
+
+.grupo-botones {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: center;
+}

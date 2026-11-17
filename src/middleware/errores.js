@@ -32,6 +32,16 @@ function crearManejadorErrores({ vistaFormulario, tituloFormulario }) {
       });
     }
 
+    // Rama de formulario parcial
+    if (esValidacion && req.method === "POST" && res.locals.formularioParcial) {
+      return res.status(400).render("reservas/estado", {
+        titulo: "Cambiar estado",
+        error: mensaje,
+        id: res.locals.formularioParcial.id,
+        valores: res.locals.formularioParcial.valores,
+      });
+    }
+
     // Rama específica para errores durante la EDICIÓN web
     if (esValidacion && req.method === "POST" && res.locals.formularioEdicion) {
       return res.status(400).render("reservas/editar", {

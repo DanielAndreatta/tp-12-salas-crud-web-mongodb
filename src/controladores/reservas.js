@@ -128,6 +128,68 @@ function crearControladorReservas(servicioReservas) {
     res.redirect(303, `/reservas/${actualizado.id}`);
   }
 
+  async function mostrarCambioEstado(req, res) {
+    const reserva = await servicioReservas.obtenerPorId(req.params.id);
+    if (!reserva) {
+      return res.status(404).render("no-encontrado", {
+        titulo: "Reserva no encontrada",
+        mensaje: "No existe la reserva solicitada. No se guardaron cambios.",
+      });
+    }
+
+    res.render("reservas/estado", {
+      titulo: "Cambiar estado",
+      error: null,
+      id: reserva.id,
+      valores: { estado: reserva.estado },
+    });
+  }
+
+  async function guardarCambioEstado(req, res) {
+    const reserva = await servicioReservas.obtenerPorId(req.params.id);
+    if (!reserva) {
+      return res.status(404).render("no-encontrado", {
+        titulo: "Reserva no encontrada",
+        mensaje: "No existe la reserva solicitada. No se guardaron cambios.",
+      });
+    }
+
+    const datos = req.body ?? {};
+    const valores = {
+      estado: typeof datos.estado === "string" ? datos.estado : "",
+    };
+
+    const campoValido = valores.estado === "pendiente" || valores.estado === "confirmada";
+
+    // Rechazar vacío, opciones inventadas, campos extra y repetidos
+    if (Object.keys(datos).length !== 1 || !campoValido) {
+      return res.status(400).render("reservas/estado", {
+        titulo: "Cambiar estado",
+        error: "Enviá únicamente el estado con una de las opciones indicadas.",
+        id: reserva.id,
+        valores,
+      });
+    }
+
+    // Guardamos contexto para el manejador de errores de Mongoose
+    res.locals.formularioParcial = { id: reserva.id, valores };
+
+    // Construimos el parche SÓLO con el estado
+    const cambios = { estado: valores.estado };
+
+    // Usamos ACTUALIZAR (no reemplazar)
+    const actualizado = await servicioReservas.actualizar(reserva.id, cambios);
+
+    if (!actualizado) {
+      return res.status(404).render("no-encontrado", {
+        titulo: "Reserva no encontrada",
+        mensaje: "No existe la reserva solicitada. No se guardaron cambios.",
+      });
+    }
+
+    res.redirect(303, `/reservas/${actualizado.id}`);
+  }
+
   async function mostrarDetalle(req, res) {
     const reserva = await servicioReservas.obtenerPorId(req.params.id);
     if (!reserva) {
@@ -275,6 +337,8 @@ function crearControladorReservas(servicioReservas) {
     mostrarFormulario,
     mostrarEdicion,
     guardarEdicion,
+    mostrarCambioEstado,
+    guardarCambioEstado,
     mostrarDetalle,
     crear,
     listarApi,
